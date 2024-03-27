@@ -105,3 +105,95 @@ if __name__ == "__main__":
         print(f"PDF creado exitosamente: {nombre_archivo_pdf}")
     else:
         print("No se seleccionó ningún archivo.")
+
+### VER ACA EL LECTOR DE ARCHIVOS
+
+import os
+
+def leer_config(ruta_archivo):
+    '''
+    Lee la configuracion del programa
+    El txt debe contener todos los campos utilizados
+
+    config['IN']: ruta de entrada
+    config['out']: ruta de salida
+    '''
+    config = {}
+    try:
+        with open(ruta_archivo, 'r') as archivo:
+            lineas = archivo.readlines()
+            #ruta IN
+            config['IN'] = lineas[0].strip()
+            config['OUT'] = lineas[1].strip()
+            
+    except FileNotFoundError:
+        print(f"El archivo '{ruta_archivo}' no se encontró.")
+        
+    except IOError:
+        print(f"No se pudo leer el archivo '{ruta_archivo}'.")
+        
+    return config
+
+def lista_nombres_archivos (ruta_carpeta):
+    '''
+    devuelve una lista con los nombres de los archivos existentes en una carpeta especifica
+    '''
+    try:
+        # Lista para almacenar nombres de archivos
+        lista_de_nombres = []
+        
+        # Iterar sobre los archivos en la carpeta
+        for archivo in os.listdir(ruta_carpeta):
+            # Verificar si es un archivo .txt
+            if archivo.endswith('.txt'):
+                lista_de_nombres.append(archivo)
+        
+        # Devolver la lista de nombres de archivos
+        return lista_de_nombres
+    
+    except FileNotFoundError:
+        print(f"La carpeta '{ruta_carpeta}' no se encontró.")
+        return []
+    except IOError:
+        print(f"No se pudo leer la carpeta '{ruta_carpeta}'.")
+        return []
+
+def file_sin_procesar(ruta_in, ruta_out):
+    '''
+    devuelve los elementos de lista_in menos lista_out,
+    se utilizara para obtener la lista de los elementos que aún no estan procesados
+    '''
+    try:
+        #obtenemos las lista de los archivos que estan en las rutas de entrada y salida
+
+        #TO_DO: seria mejor que la lista de salida las lea de un archivo que contenga el historial de los archivos procesados
+        print('buscando txt la ruta: ', ruta_in)
+        lista_in = lista_nombres_archivos(ruta_in)
+        lista_out = lista_nombres_archivos(ruta_out)
+        
+        # Convertir ambas listas a conjuntos para realizar la diferencia
+        set_in = set(lista_in)
+        set_out = set(lista_out)
+        
+        # Obtener los archivos que están en lista_in pero no en lista_out
+        archivos_faltantes = set_in - set_out
+        
+        # Devolver la lista de archivos faltantes
+        return list(archivos_faltantes)
+    
+    except TypeError as e:
+        print("Error:", e)
+        return []
+
+
+
+
+config = leer_config('config.txt') #busca la configuracion donde se encuentra el script
+
+sin_procesar = file_sin_procesar(config['IN'], config['OUT'])
+
+if sin_procesar == []:
+    print('Nada por procesar')
+else:
+    print(sin_procesar)
+
